@@ -3,7 +3,13 @@ import { supabase } from '../config/supabaseClient';
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -22,17 +28,17 @@ export const AuthProvider = ({ children }) => {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchEmployeeData(session.user.id);
-        } else {
-          setEmployee(null);
-          setLoading(false);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await fetchEmployeeData(session.user.id);
+      } else {
+        setEmployee(null);
+        setLoading(false);
       }
-    );
+    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -42,9 +48,9 @@ export const AuthProvider = ({ children }) => {
       const { data, error } = await supabase
         .from('employees')
         .select('*')
-        .eq('id', userId)
+        .eq('auth_id', userId)
         .single();
-      
+
       if (error) throw error;
       setEmployee(data);
     } catch (error) {
@@ -54,16 +60,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  };
+
   const value = {
     user,
     employee,
+    login,
+    logout,
     loading,
-    signOut: () => supabase.auth.signOut()
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
