@@ -7,6 +7,7 @@ const DocumentManager = ({ student }) => {
   const [uploading, setUploading] = useState(false);
   const [description, setDescription] = useState('');
   const { employee } = useAuth();
+  const bucketName = 'documents';
 
   useEffect(() => {
     if (student) {
@@ -35,27 +36,33 @@ const DocumentManager = ({ student }) => {
       if (!file) return;
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${student.id}/${fileName}`;
 
       // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(filePath, file);
+      const { data: uploadData, error: uploadError } = await supabase.storage
+      .from(bucketName)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('documents')
-        .getPublicUrl(filePath);
+      // Get private URL
+      const {data: signedData, error: signedError} = await supabase.storage
+        .from(bucketName)
+        .createSignedUrl(filePath, 60 * 60); // URL valid for 1 hour
+
+      if (signedError) throw signedError;
+      let fileUrl=signedData?.signedUrl;
 
       // Create document record
       const { error: dbError } = await supabase
         .from('documents')
         .insert({
           student_id: student.id,
-          file_url: publicUrl,
+          file_url: fileUrl,
           file_name: file.name,
           description: description,
           uploaded_by: employee.id,
@@ -69,7 +76,7 @@ const DocumentManager = ({ student }) => {
       e.target.value = ''; // Reset file input
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('Error uploading file: ' + error.message);
+      alert('Error uploading file: ' + error?.message || error);
     } finally {
       setUploading(false);
     }
