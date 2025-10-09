@@ -41,28 +41,20 @@ const DocumentManager = ({ student }) => {
 
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(bucketName)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+        .from(bucketName)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
 
       if (uploadError) throw uploadError;
-
-      // Get private URL
-      const {data: signedData, error: signedError} = await supabase.storage
-        .from(bucketName)
-        .createSignedUrl(filePath, 60 * 60); // URL valid for 1 hour
-
-      if (signedError) throw signedError;
-      let fileUrl=signedData?.signedUrl;
 
       // Create document record
       const { error: dbError } = await supabase
         .from('documents')
         .insert({
           student_id: student.id,
-          file_url: fileUrl,
+          file_path: filePath,
           file_name: file.name,
           description: description,
           uploaded_by: employee.id,
@@ -109,15 +101,40 @@ const DocumentManager = ({ student }) => {
     }
   };
 
+  const viewDocument = async (doc) => {
+    try {
+      // get a fresh token (this will refresh if needed)
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token; // or use getUser() as needed
+
+      // Use the Supabase functions client:
+      const { data, error } = await supabase.functions.invoke('get-signed-url', {
+        method: 'POST',
+        body: JSON.stringify({ doc_id: doc.id, expiry_seconds: 60 }),
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (error) throw error;
+      const signedUrl = data?.signedUrl;
+      if (!signedUrl) throw new Error('No signed URL returned');
+
+      window.open(signedUrl, '_blank');
+    } catch (err) {
+      console.error('Error fetching signed url', err);
+      alert('Could not open document');
+    }
+  };
+
+
   if (!student) {
-    return <div className="text-center text-gray-500">Select a student to manage documents</div>;
+    return <div className="text-center text-gray-500">Elige un estudiante de la lista</div>;
   }
 
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h3 className="text-lg leading-6 font-medium text-gray-900">
-          Documents for {student.name}
+          Documentos de {student.name}
         </h3>
       </div>
 
@@ -163,18 +180,18 @@ const DocumentManager = ({ student }) => {
               </div>
               <div className="flex items-center space-x-2">
                 <a
-                  href={document.file_url}
+                  href={viewDocument(document)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200"
                 >
-                  View
+                  Ver
                 </a>
                 <button
                   onClick={() => deleteDocument(document.id, document.file_url.split('/').pop())}
                   className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
                 >
-                  Delete
+                  Borrar
                 </button>
               </div>
             </div>

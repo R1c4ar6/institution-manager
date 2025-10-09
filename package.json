@@ -11,7 +11,7 @@
     "db:seed": "node ./tests/seed.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.58.0",
+    "@supabase/supabase-js": "^2.75.0",
     "@tailwindcss/vite": "^4.1.13",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -26,6 +26,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.4.0",
+    "supabase": "^2.48.3",
     "vite": "^7.1.7"
   }
 }

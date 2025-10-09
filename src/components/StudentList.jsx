@@ -35,8 +35,9 @@ const StudentList = ({ onSelectStudent, refresh }) => {
   );
 
   if (loading) {
-    return <div className="text-center">Loading students...</div>;
+    return <div className="text-center">Cargando datos de estudiantes...</div>;
   }
+  
 
   return (
     <div className="bg-white shadow rounded-lg">
