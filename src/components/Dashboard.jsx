@@ -39,7 +39,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-500">
       {/* Header */}
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,9 +50,9 @@ const Dashboard = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-400 hover:bg-red-500"
             >
-              Logout
+              Cerrar Sesión
             </button>
           </div>
         </div>
@@ -63,19 +63,19 @@ const Dashboard = () => {
           {/* Left Column */}
           <div className="space-y-8">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Students</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Estudiantes</h2>
               <button
                 onClick={handleAddStudent}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
-                Add Student
+                Agregar Estudiante
               </button>
             </div>
 
             {showStudentForm ? (
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-medium mb-4">
-                  {editingStudent ? 'Edit Student' : 'Add New Student'}
+                  {editingStudent ? 'Editar Estudiante' : 'Agregar Estudiante'}
                 </h3>
                 <StudentForm
                   student={editingStudent}
@@ -93,7 +93,7 @@ const Dashboard = () => {
 
           {/* Right Column */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Document Management</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">Administrar documentos</h2>
             {selectedStudent && (
               <div className="mb-4">
                 <div className="flex items-center justify-between">
@@ -102,7 +102,7 @@ const Dashboard = () => {
                     onClick={() => handleEditStudent(selectedStudent)}
                     className="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"
                   >
-                    Edit Student
+                    Editar Estudiante
                   </button>
                 </div>
               </div>

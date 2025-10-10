@@ -101,29 +101,10 @@ const DocumentManager = ({ student }) => {
     }
   };
 
-  const viewDocument = async (doc) => {
-    try {
-      // get a fresh token (this will refresh if needed)
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData?.session?.access_token; // or use getUser() as needed
-
-      // Use the Supabase functions client:
-      const { data, error } = await supabase.functions.invoke('get-signed-url', {
-        method: 'POST',
-        body: JSON.stringify({ doc_id: doc.id, expiry_seconds: 60 }),
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (error) throw error;
-      const signedUrl = data?.signedUrl;
-      if (!signedUrl) throw new Error('No signed URL returned');
-
-      window.open(signedUrl, '_blank');
-    } catch (err) {
-      console.error('Error fetching signed url', err);
-      alert('Could not open document');
-    }
-  };
+  const viewDocument = (document) => {
+    const { data } = supabase.storage.from(bucketName).getPublicUrl(document.file_path);
+    return data.publicUrl;
+  }
 
 
   if (!student) {
@@ -175,7 +156,7 @@ const DocumentManager = ({ student }) => {
                 <h4 className="text-sm font-medium text-gray-900">{document.file_name}</h4>
                 <p className="text-sm text-gray-500">{document.description}</p>
                 <p className="text-xs text-gray-400">
-                  Uploaded on {new Date(document.uploaded_at).toLocaleDateString()}
+                  Subido el {new Date(document.uploaded_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="flex items-center space-x-2">
