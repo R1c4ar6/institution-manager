@@ -11,8 +11,19 @@ const Dashboard = () => {
   const [editingStudent, setEditingStudent] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleLogout = async () => {
-    await logout();
+  const InactivityLogout = () => {
+    let timer;
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(logout, 5 * 60 * 1000); // 5 minutes
+    };
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+    };
   };
 
   const handleStudentSelect = (student) => {
@@ -38,18 +49,20 @@ const Dashboard = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
+  InactivityLogout();
+
   return (
-    <div className="min-h-screen bg-gray-500">
+    <div className="min-h-screen bg-gray-300">
       {/* Header */}
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Student Portal</h1>
-              <p className="text-sm text-gray-500">Welcome, {employee?.name}</p>
+              <h1 className="text-3xl font-bold text-gray-900">Control de documentos</h1>
+              <p className="text-sm text-gray-500">Bienvenido de vuelta, {employee?.name}</p>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={logout}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-400 hover:bg-red-500"
             >
               Cerrar Sesión
@@ -97,7 +110,7 @@ const Dashboard = () => {
             {selectedStudent && (
               <div className="mb-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium">Managing: {selectedStudent.name}</h3>
+                  <h3 className="text-lg font-medium">Administrando: {selectedStudent.name}</h3>
                   <button
                     onClick={() => handleEditStudent(selectedStudent)}
                     className="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"

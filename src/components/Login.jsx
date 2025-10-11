@@ -10,6 +10,10 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //Clean the email
+    setEmail(email.trim().toLowerCase());
+
     setLoading(true);
     setError('');
 
@@ -65,7 +69,7 @@ const Login = () => {
                 autoComplete="current-password"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-300 text-white rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />

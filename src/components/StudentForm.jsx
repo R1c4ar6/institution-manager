@@ -78,7 +78,7 @@ const StudentForm = ({ student, onSave, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700">Name</label>
+        <label className="block text-sm font-medium text-gray-700">Nombre</label>
         <input
           type="text"
           name="name"
@@ -101,7 +101,7 @@ const StudentForm = ({ student, onSave, onCancel }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Enrollment Date</label>
+        <label className="block text-sm font-medium text-gray-700">Fecha de ingreso</label>
         <input
           type="date"
           name="enroll_date"
@@ -112,14 +112,14 @@ const StudentForm = ({ student, onSave, onCancel }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Assigned Employee</label>
+        <label className="block text-sm font-medium text-gray-700">Asignar encargado</label>
         <select
           name="assigned_employee"
           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
           value={formData.assigned_employee}
           onChange={handleChange}
         >
-          <option value="">Unassigned</option>
+          <option value="">Sin encargado</option>
           {employees.map(emp => (
             <option key={emp.id} value={emp.id}>{emp.name}</option>
           ))}
@@ -134,7 +134,7 @@ const StudentForm = ({ student, onSave, onCancel }) => {
           checked={formData.status}
           onChange={handleChange}
         />
-        <label className="ml-2 block text-sm text-gray-900">Active</label>
+        <label className="ml-2 block text-sm text-gray-900">Activo</label>
       </div>
 
       <div className="flex justify-end space-x-3">
@@ -143,14 +143,14 @@ const StudentForm = ({ student, onSave, onCancel }) => {
           onClick={onCancel}
           className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          Cancel
+          Cancelar
         </button>
         <button
           type="submit"
           disabled={loading}
           className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
         >
-          {loading ? 'Saving...' : (student ? 'Update' : 'Create')}
+          {loading ? 'Saving...' : (student ? 'Update' : 'Agregar')}
         </button>
       </div>
     </form>
