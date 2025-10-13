@@ -150,7 +150,7 @@ const StudentForm = ({ student, onSave, onCancel }) => {
           disabled={loading}
           className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
         >
-          {loading ? 'Saving...' : (student ? 'Update' : 'Agregar')}
+          {loading ? 'Guardando...' : (student ? 'Guardar' : 'Agregar')}
         </button>
       </div>
     </form>

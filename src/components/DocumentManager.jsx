@@ -25,7 +25,7 @@ const DocumentManager = ({ student }) => {
     if (error) {
       console.error('Error fetching documents:', error);
     } else {
-      setDocuments(data || []);
+      setDocuments(data);
     }
   };
 
@@ -38,6 +38,7 @@ const DocumentManager = ({ student }) => {
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${student.id}/${fileName}`;
+      const dateNow = new Date().toISOString();
 
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -54,8 +55,9 @@ const DocumentManager = ({ student }) => {
         .from('documents')
         .insert({
           student_id: student.id,
-          file_path: filePath,
           file_name: file.name,
+          uploaded_at: dateNow,
+          file_path: filePath,
           description: description,
           uploaded_by: employee.id,
         });
@@ -75,7 +77,7 @@ const DocumentManager = ({ student }) => {
   };
 
   const deleteDocument = async (documentId, filePath) => {
-    if (!confirm('Are you sure you want to delete this document?')) return;
+    if (!confirm('¿Estás seguro de eliminar este documento?')) return;
 
     try {
       // Delete from storage
@@ -156,7 +158,8 @@ const DocumentManager = ({ student }) => {
                 <h4 className="text-sm font-medium text-gray-900">{document.file_name}</h4>
                 <p className="text-sm text-gray-500">{document.description}</p>
                 <p className="text-xs text-gray-400">
-                  Subido el {new Date(document.uploaded_at).toLocaleDateString()}
+                    Subido el {new Date(document.uploaded_at).toLocaleDateString('es-ES')}
+                  
                 </p>
               </div>
               <div className="flex items-center space-x-2">
@@ -169,7 +172,7 @@ const DocumentManager = ({ student }) => {
                   Ver
                 </a>
                 <button
-                  onClick={() => deleteDocument(document.id, document.file_url.split('/').pop())}
+                  onClick={() => deleteDocument(document.id, document.file_path)}
                   className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
                 >
                   Borrar

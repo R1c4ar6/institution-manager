@@ -63,7 +63,7 @@ const Dashboard = () => {
             </div>
             <button
               onClick={logout}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-400 hover:bg-red-500"
+              className="z-10 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-400 hover:bg-red-500"
             >
               Cerrar Sesión
             </button>
