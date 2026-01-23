@@ -1,6 +1,25 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../config/supabaseClient';
+import { pb } from '../config/pocketbaseClient';
 
+const email = import.meta.env.POCKETBASE_SUPERUSER_EMAIL;
+const password = import.meta.env.POCKETBASE_SUPERUSER_PASSWORD;
+
+const authData = await pb.collection('_superusers').authWithPassword(
+  email,
+  password,
+);
+
+// after the above you can also access the auth data from the authStore
+console.log(pb.authStore.isValid);
+console.log(pb.authStore.token);
+console.log(pb.authStore.record.id);
+
+// "logout"
+pb.authStore.clear();
+
+export default authData;
+
+/* 
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -83,4 +102,4 @@ export const AuthProvider = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+}; */
