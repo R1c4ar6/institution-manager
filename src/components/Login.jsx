@@ -1,30 +1,19 @@
 import React, { useState } from 'react';
-import { authData } from '../context/AuthContext';
+import { pb } from '../config/pocketbaseClient';
+import { useForm } from 'react-hook-form';
+
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { register, handleSubmit } = useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = authData();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    //Clean the email
-    setEmail(email.trim().toLowerCase());
-
-    setLoading(true);
-    setError('');
-
-    try {
-      await login(email, password);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  async function gettingIn(data) {
+    const authData = await pb.collection('employee').authWithPassword(
+      data.email,
+      data.password,
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-900">
@@ -35,7 +24,7 @@ const Login = () => {
           </h2>
           <small className='block text-center text-gray-200 mt-2'>Para DEMO prueba con <strong>admin@ejemplo.com</strong> para correo y <strong>admin</strong> para contraseña</small>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(gettingIn)}>
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
               {error}
@@ -54,8 +43,7 @@ const Login = () => {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-300 text-white rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
               />
             </div>
             <div>
@@ -70,8 +58,7 @@ const Login = () => {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-300 text-white rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
               />
             </div>
           </div>

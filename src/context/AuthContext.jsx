@@ -1,8 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
 import { pb } from '../config/pocketbaseClient';
-
-const email = import.meta.env.POCKETBASE_SUPERUSER_EMAIL;
-const password = import.meta.env.POCKETBASE_SUPERUSER_PASSWORD;
 
 const authData = await pb.collection('_superusers').authWithPassword(
   email,
