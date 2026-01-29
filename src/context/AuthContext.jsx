@@ -1,21 +1,6 @@
-import { pb } from '../config/pocketbaseClient';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import pb from '../config/pocketbaseClient';
 
-const authData = await pb.collection('_superusers').authWithPassword(
-  email,
-  password,
-);
-
-// after the above you can also access the auth data from the authStore
-console.log(pb.authStore.isValid);
-console.log(pb.authStore.token);
-console.log(pb.authStore.record.id);
-
-// "logout"
-pb.authStore.clear();
-
-export default authData;
-
-/* 
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -32,39 +17,69 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchEmployeeData(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchEmployeeData(session.user.id);
-      } else {
+  // Get initial auth state
+  const checkInitialAuth = async () => {
+    setLoading(true);
+    
+    // Check if we have a valid token
+    if (pb.authStore.isValid) {
+      try {
+        // Refresh token to ensure it's valid and get latest user data
+        await pb.collection('_superusers').authRefresh();
+        const user = pb.authStore.model;
+        setUser(user);
+        
+        if (user?.id) {
+          await fetchEmployeeData(user.id);
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Auth refresh failed:", error);
+        // Clear invalid auth
+        pb.authStore.clear();
+        setUser(null);
         setEmployee(null);
         setLoading(false);
       }
-    });
+    } else {
+      // No valid auth token
+      setUser(null);
+      setEmployee(null);
+      setLoading(false);
+    }
+  };
 
-    return () => subscription.unsubscribe();
-  }, []);
+  // Run initial check
+  checkInitialAuth();
+
+  // Listen for auth store changes (login/logout)
+  const unsubscribe = pb.authStore.onChange((token, model) => {
+    console.log('Auth state changed:', token ? 'Logged in' : 'Logged out');
+    
+    if (token && model) {
+      // User logged in or token refreshed
+      setUser(model);
+      if (model.id) {
+        fetchEmployeeData(model.id);
+      }
+    } else {
+      // User logged out or token expired
+      setUser(null);
+      setEmployee(null);
+      setLoading(false);
+    }
+  });
+
+  // Clean up on unmount
+  return () => {
+    unsubscribe();
+  };
+}, []);
 
   const fetchEmployeeData = async (userId) => {
     try {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .eq('auth_id', userId)
-        .single();
+      const { data, error } = await pb.collection('employees').getOne(userId);
 
       if (error) throw error;
       setEmployee(data);
@@ -76,16 +91,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await pb.collection('employees').authWithPassword(email, password);
     if (error) throw error;
     return data;
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = pb.authStore.clear();
     if (error) throw error;
   };
 
@@ -98,4 +110,4 @@ export const AuthProvider = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}; */
+};

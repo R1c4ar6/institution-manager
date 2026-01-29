@@ -19,9 +19,9 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    /* <AuthProvider> */
+    <AuthProvider>
       <AppContent />
-    /* </AuthProvider> */
+    </AuthProvider>
   );
 };
 
